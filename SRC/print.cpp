@@ -66,7 +66,6 @@ void print_all_spikes(const vector<int> spike_trains[],
     info<<"Maximum number of spikes in a neuron: "<<max<<endl;
     info<<"Minimum number of spikes in a neuron: "<<min<<endl;
     info<<"Average number of spikes per neuron: "
-                                    <<total_firings / double(neur_clean)<<endl;
 }
 
 
