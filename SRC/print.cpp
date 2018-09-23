@@ -33,8 +33,11 @@ void print_all_spikes(const vector<int> spike_trains[],
     int total_firings = 0, max = 0, min = 100000;
     const int astro_size = astrocytes.size();
     const int neur_clean = total_neurons - astro_size;
-    int astro = 0, astrocyte = astrocytes[0];
+    int astro = 0, astrocyte = 0;
     vector<int> time_lines;
+    if (astro_size) {
+        astrocyte = astrocytes[0];
+    }
     
     ofstream spikes;
     spikes.open(("RESULTS/" + output + "_" + shifts + "-shifts_" + Dt + 
@@ -46,7 +49,7 @@ void print_all_spikes(const vector<int> spike_trains[],
     spikes<<"\nThe data structure: "<<endl;
     for (int neur = 0; neur < total_neurons; neur++) {
         int pos, time_line_size;
-        if (neur == astrocyte) {
+        if (astro_size && neur == astrocyte) {
             pos = neur_clean + astro;
             time_line_size = spike_trains[pos].size();
             spikes<<"No "<<neur + 1<<" astrocyte neuron's spikes ("
@@ -83,13 +86,13 @@ void print_all_spikes(const vector<int> spike_trains[],
         median = (time_lines[neur_clean/2 - 1] + time_lines[neur_clean/2])/2.0;
     }
     
-    info<<"\nDataset analytics excluding astrocytes:"<<endl;
+    info<<"\nNeurons' info without astrocytes:"<<endl;
     info<<"Total number of spikes: "<<total_firings<<endl;
-    info<<"Maximum number of spikes found in a neuron: "<<max<<endl;
-    info<<"Minimum number of spikes found in a neuron: "<<min<<endl;
-    info<<"Average spikes per neuron: "
+    info<<"Max spikes for neurons: "<<max<<endl;
+    info<<"Min spikes for neurons: "<<min<<endl;
+    info<<"Average spikes in each neuron: "
                                     <<total_firings / double(neur_clean)<<endl;
-    // info<<"Median spikes for neurons: "<<median<<endl;
+    info<<"Median spikes for neurons: "<<median<<endl;
 }
 
 
