@@ -65,7 +65,6 @@ void print_all_spikes(const vector<int> spike_trains[],
     info<<"Total number of spikes in dataset: "<<total_firings<<endl;
     info<<"Maximum number of spikes in a neuron: "<<max<<endl;
     info<<"Minimum number of spikes in a neuron: "<<min<<endl;
-    info<<"Average number of spikes per neuron: "
 }
 
 
