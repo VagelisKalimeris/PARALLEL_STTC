@@ -50,6 +50,7 @@ int main(int argc, char const *argv[])
     }
 
 // Get total number of neurons from file
+    string line;
     getline(data, line);
     const int neurons = line.length() - 1;
     data.seekg(0, data.beg);
