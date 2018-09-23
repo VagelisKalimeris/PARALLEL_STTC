@@ -40,7 +40,15 @@ int main(int argc, char const *argv[])
     
 // Caclulation variables
     int ttl_sgnfcnt_tuplets = 0, ttl_sgnfcnt_triplets = 0;
-    
+
+// Open File
+    ifstream data;
+    data.open((string("DATASETS/") + argv[3]).c_str(), ifstream::in);
+    if (!data.is_open()) {
+        cout<<"Error opening dataset file!"<<endl;
+        return 0;
+    }
+
 // Get total number of neurons from file
     getline(data, line);
     const int neurons = line.length() - 1;
