@@ -77,22 +77,22 @@ void print_all_spikes(const vector<int> spike_trains[],
     }
     spikes.close();
     
-    double median;
-    sort(time_lines.begin(), (time_lines.begin() + neur_clean));
-    if (neur_clean % 2) {
-        median = time_lines[neur_clean/2]/1.0;
-    }
-    else {
-        median = (time_lines[neur_clean/2 - 1] + time_lines[neur_clean/2])/2.0;
-    }
+    // double median;
+    // sort(time_lines.begin(), (time_lines.begin() + neur_clean));
+    // if (neur_clean % 2) {
+    //     median = time_lines[neur_clean/2]/1.0;
+    // }
+    // else {
+    //     median = (time_lines[neur_clean/2 - 1] + time_lines[neur_clean/2])/2.0;
+    // }
     
-    info<<"\nNeurons' info without astrocytes:"<<endl;
-    info<<"Total number of spikes: "<<total_firings<<endl;
-    info<<"Max spikes for neurons: "<<max<<endl;
-    info<<"Min spikes for neurons: "<<min<<endl;
-    info<<"Average spikes in each neuron: "
+    info<<"\nNeurons' analytics without astrocytes:"<<endl;
+    info<<"Total number of spikes in dataset: "<<total_firings<<endl;
+    info<<"Maximum number of spikes in a neuron: "<<max<<endl;
+    info<<"Minimum number of spikes in a neuron: "<<min<<endl;
+    info<<"Average number of spikes per neuron: "
                                     <<total_firings / double(neur_clean)<<endl;
-    info<<"Median spikes for neurons: "<<median<<endl;
+    // info<<"Median number of spikes for neurons: "<<median<<endl;
 }
 
 
