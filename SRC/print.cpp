@@ -26,9 +26,9 @@
 *                                                                             *
 ******************************************************************************/
 void print_all_spikes(const vector<int> spike_trains[], 
-                        const int total_neurons, 
-                        ofstream &info, const string output, 
-                        const string shifts, const string Dt)
+                        const int total_neurons, ofstream &info, 
+                        const string output, const string shifts, 
+                                                            const string Dt)
 {
     int total_firings = 0, max = 0, min = 100000;
     const int neur_clean = total_neurons;
