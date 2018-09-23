@@ -86,7 +86,7 @@ int main(int argc, char const *argv[])
         cout<<"Error opening results neurons info file!"<<endl;
         return 0;
     }
-    print_all_spikes(spike_trains, neurons, 0, info, 
+    print_all_spikes(spike_trains, neurons, info, 
                                             string(argv[3]), shifts_s, Dt_s);
     
 // Start random sequence
