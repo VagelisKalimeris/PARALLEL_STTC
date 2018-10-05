@@ -1,6 +1,7 @@
-##INSTALLATION INSTRUCTIONS
+## **INSTALLATION INSTRUCTIONS**
 
-###Linux
+### `Linux`
+
 Open terminal, cd to to your prefared location. 
 Type:
 
@@ -11,7 +12,7 @@ Type:
 Make shure directories: DATASETS, ASTROCYTES, RESULTS have been created. If any of them is missing, create it yourself. For example "mkdir RESULTS".
 
 Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
-	load '<name>.mat'
+	load '<\name>.mat'
 	dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
 where <name> is the name of .mat file and <matrix> is the 2D table (frames * cells).
 
@@ -32,14 +33,17 @@ There are five types as listed below:
 	d) _pairs.csv(or _tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
 	e) _triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group._
 
-###WINDOWS
+### `WINDOWS`
+
 The instructions are the same as long as you have installed a terminal application (we suggest "cygwin"), and added "git"" and "make" support.
 
-###Parameters that you might want to change:
 
-####After any change to the source code, you must save the changed file and run the commands "make clean" and "make".
+
+## **Parameters that you might want to change:**
+
+#### After any change to the source code, you must save the changed file and run the commands "make clean" and "make".
 
 Null distribution of the conditional STTC: If the conditional STTC of a given triplet ABC, is greater than the significant threshold and the number of firing events of ‘reduced A’ is greater than 5, then we consider this triplet as significant.
-You might want to change this by opening the file SRC/cond_null_dist.cpp with a text editor, and entering your prefared number at line 65.
+You might want to change this by opening the file SRC/cond_null_dist.cpp with a text editor, and entering your preferred number at line 65.
 
-To change the significant threshold open the file SRC/common.cpp with a text editor and at line 75, change 3.0 to your prefared value(a real number, not integer is required).
+To change the significant threshold open the file SRC/common.cpp with a text editor and at line 75, change 3.0 to your preferred value(a real number, not integer is required).
