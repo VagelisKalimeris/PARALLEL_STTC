@@ -30,11 +30,17 @@ The first part of every output file is the same as the name of the corresponding
 The second part of every output file lists the analysis parameters(control group, Dt).
 The third part of every output file indicates it's type.
 There are five types as listed below:
+
 	1. motifs.csv: Motif analysis
+
 	2.neurons_info.txt: The total number of significant pairs and triplets as well as some general information that were collected during the analysis.
+
 	3. neurons_spikes.txt: The spikes found in each neuron.
+
 	4. pairs.csv(or tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
-	5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group.
+
+	5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group
+		
 
 ### `WINDOWS`
 
