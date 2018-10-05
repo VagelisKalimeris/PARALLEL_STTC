@@ -79,7 +79,7 @@ void print_all_spikes(const vector<int> spike_trains[],
         
     info<<"\nNeurons' analytics:"<<endl;
     info<<"Total number of neurons: "<<total_neurons<<endl;
-    info<<"total number of astrocytes: "<<astro_size<<endl;
+    info<<"Total number of astrocytes: "<<astro_size<<endl;
     info<<"\nSpikes info excluding astrocytes:"<<endl;
     info<<"Total number of spikes in all neurons: "<<total_firings<<endl;
     info<<"Maximum number of spikes in a neuron: "<<max<<endl;
