@@ -12,15 +12,14 @@ Type:
 Make sure directories: DATASETS, ASTROCYTES, RESULTS have been created. If any of them is missing, create it yourself. For example "mkdir RESULTS".
 
 Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
-	```
-	load '<name>.mat'
-	dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
-where <name> is the name of .mat file and <matrix> is the 2D table (frames * cells).
-```
+	load 'name.mat'
+	dlmwrite('name', matrix, 'newline', 'unix', 'delimiter', '')
+where name is the name of .mat file and matrix is the 2D table (frames * cells).
+The names of the final input files(dataset + astrocytes) MUST have the same name
 
 Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
 
-Run with: "./sttc size_of_control_group size_of_Dt"
+Run with: "./sttc size_of_control_group size_of_Dt name_of_dataset"
 For example if Dt = 3 and control group = 500 run "./sttc 500 3"
 
 The resulting files will be accessible after program completion inside RESULTS directory. 
