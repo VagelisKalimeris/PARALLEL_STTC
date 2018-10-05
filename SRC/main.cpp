@@ -126,7 +126,7 @@ int main(int argc, char const *argv[])
     astros.close();
     
 // Print message that computation is starting
-    cout<<"Computing dataset "<<argv[0]<<" with Dt = "<<argv[2]
+    cout<<"Computing dataset "<<argv[3]<<" with Dt = "<<argv[2]
         <<" and control group = "<<argv[1]<<"."<<endl;
 
 // Print the data structure and total number of firings in experiment
