@@ -27,7 +27,18 @@
 
 using namespace std;
 
-
+/******************************************************************************
+* FUNCTION NAME: main                                                         *
+*                                                                             *
+* ARGUMENTS: The total numbers Circular Shifts and the size of the tile Δt.   *
+*                                                                             *
+* PURPOSE: This main function is for testing purposes only.                   *
+*                                                                             *
+* RETURNS: 0 on program comletion.                                            *
+*                                                                             *
+* I/O: Opens/Reads a file containing the spike trains.                        *
+*                                                                             *
+******************************************************************************/
 int main(int argc, char const *argv[])
 {
 // Command line arguments check
@@ -40,39 +51,84 @@ int main(int argc, char const *argv[])
     
 // Caclulation variables
     int ttl_sgnfcnt_tuplets = 0, ttl_sgnfcnt_triplets = 0;
-
+    
 // Open File
-    ifstream data;
+    ifstream data, astros;
     data.open((string("DATASETS/") + argv[3]).c_str(), ifstream::in);
     if (!data.is_open()) {
-        cout<<"Error opening dataset file!"<<endl;
+        cout<<"Error opening input dataset file!"<<endl;
         return 0;
     }
-
-// Get total number of neurons from file
+    astros.open((string("ASTROCYTES/") + argv[3]).c_str(), ifstream::in);
+    if (!astros.is_open()) {
+        cout<<"Problem opening input astrocytes file!\
+                                 Continuing without astrocyte removal!"<<endl;
+    }
     string line;
+    
+// Get astrocytes
+    vector<int> astrocytes;
+    while (getline(astros, line)) {
+        astrocytes.push_back(atoi(line.c_str()) - 1);
+    }
+    const int astro_size = astrocytes.size();
+    
+// Get total number of neurons from file
     getline(data, line);
-    const int neurons = line.length();
+    const int ttl_neurons = line.length();
+    const int neurons = line.length() - astro_size;
     data.seekg(0, data.beg);
     
-// Our main data structure
-    vector<int> spike_trains[neurons];
+// Our main data structure and astrocyte list
+    vector<int> spike_trains[ttl_neurons];
     
 // Store each neuron's firing (1's) to the data structure
     int total_time_samples = 0;
     while (getline(data, line)) {
-        for (int n = 0; n < neurons; n++) {
-            if (line[n] == '1') {
-                spike_trains[n].push_back(total_time_samples);
+        int astros_count = 0;
+        int astrocyte = 0;
+        if (astro_size) {
+            astrocyte = astrocytes[0];
+        }
+        int push_count = 0;
+        for (int neur = 0; neur < ttl_neurons; ++neur) {
+            int pos;
+            if (astro_size && neur == astrocyte) {
+                pos = neurons + astros_count++;
+                astrocyte = astrocytes[astros_count];
+            }
+            else {
+                pos = push_count++;
+            }
+            if (line[neur] == '1') {
+                spike_trains[pos].push_back(total_time_samples);
             }
         }
         total_time_samples++;
     }
     
+// Make the mapping from virtual to real neuron's number
+    int map[neurons];
+    int astro = 0;
+    int astrocyte = 0;
+    if (astro_size) {
+        astrocyte = astrocytes[0];
+    }
+    for (int neur = 0; neur < neurons; ++neur) {
+        while (astro_size && (neur + astro) == astrocyte) {
+            astrocyte = astrocytes[(++astro) % astro_size];
+        }
+        map[neur] = neur + astro + 1;
+    }
 
 // Close input files
     data.close();
+    astros.close();
     
+// Print message that computation is starting
+    cout<<"Computing dataset "<<argv[0]<<" with Dt = "<<argv[2]
+        <<" and control group = "<<argv[1]<<"."<<endl;
+
 // Print the data structure and total number of firings in experiment
     char str[33];
     sprintf(str, "%d", circ_shifts_num);
@@ -86,7 +142,7 @@ int main(int argc, char const *argv[])
         cout<<"Error opening results neurons info file!"<<endl;
         return 0;
     }
-    print_all_spikes(spike_trains, neurons, info, 
+    print_all_spikes(spike_trains, ttl_neurons, astrocytes, info, 
                                             string(argv[3]), shifts_s, Dt_s);
     
 // Start random sequence
@@ -143,6 +199,7 @@ int main(int argc, char const *argv[])
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
         if (tl_A_size == 0) {continue;}
+        int a_real = map[a];
         #pragma omp parallel
         {
             double tAp = T_Aplus[a];
@@ -199,9 +256,10 @@ int main(int argc, char const *argv[])
                                         shifted_res_arr[pos] <= tupl_sttc) {
                         ++pos;
                     }
+                    int b_real = map[b];
                     double percentile = pos / double(denominator);
                     #pragma omp critical
-                    tuplets << a << ',' << b << ',' << tupl_sttc
+                    tuplets << a_real << ',' << b_real << ',' << tupl_sttc
                                                  << ',' << percentile << '\n';
                 }
             }
@@ -210,8 +268,8 @@ int main(int argc, char const *argv[])
     }
     tuplets.close();
     info<<"\nNumber of total significant tuplets: "<<ttl_sgnfcnt_tuplets<<" ( "
-                            <<(ttl_sgnfcnt_tuplets * 100 / double(neurons * 
-                            (neurons - 1)))<<"% )"<<endl;
+                            <<(ttl_sgnfcnt_tuplets * 100 / double(ttl_neurons * 
+                            (ttl_neurons - 1)))<<"% )"<<endl;
     
     
 // Motif arrays
@@ -231,6 +289,7 @@ int main(int argc, char const *argv[])
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
         if (tl_A_size == 0) {continue;}
+        int a_real = map[a];
         #pragma omp parallel
         {
         // Shifted spike trains will be copied here
@@ -245,6 +304,7 @@ int main(int argc, char const *argv[])
                 if (tl_C_size == 0) {continue;}
                 bool sign_trplt_limit = sgnfcnt_limit[a][c];
                 double tApt = T_Aplus_tripl[a][c];
+                int c_real = map[c];
                 for (int b = 0; b < neurons; b++) { // Neuron B
                     if (b == a || b == c) {continue;} // Skip same neurons
                     int pos = sgnfcnt_tuplets[c][a] * 4 + 
@@ -299,9 +359,10 @@ int main(int argc, char const *argv[])
                                         shifted_res_arr[pos] <= trip_sttc) {
                             ++pos;
                         }
+                        int b_real = map[b];
                         double percentile = pos / double(denominator);
                         #pragma omp critical
-                        triplets << a << ',' << b << ',' << c 
+                        triplets << a_real << ',' << b_real << ',' << c_real 
                             << ',' << trip_sttc << ',' << percentile << '\n';
                     }
                 }
@@ -311,8 +372,8 @@ int main(int argc, char const *argv[])
     }
     triplets.close();
     info<<"\nNumber of total significant triplets: "<<ttl_sgnfcnt_triplets
-                    <<" ( "<<(ttl_sgnfcnt_triplets * 100 / double(neurons * 
-                    (neurons - 1) * (neurons - 2)))<<"% )"<<endl;
+                    <<" ( "<<(ttl_sgnfcnt_triplets * 100 / double(ttl_neurons * 
+                    (ttl_neurons - 1) * (ttl_neurons - 2)))<<"% )"<<endl;
     
     
 // Free memory

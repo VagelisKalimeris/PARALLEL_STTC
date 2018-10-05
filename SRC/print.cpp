@@ -26,12 +26,18 @@
 *                                                                             *
 ******************************************************************************/
 void print_all_spikes(const vector<int> spike_trains[], 
-                        const int total_neurons, ofstream &info, 
-                        const string output, const string shifts, 
-                                                            const string Dt)
+                        const int total_neurons, const vector<int> &astrocytes, 
+                        ofstream &info, const string output, 
+                        const string shifts, const string Dt)
 {
     int total_firings = 0, max = 0, min = 100000;
+    const int astro_size = astrocytes.size();
+    const int neur_clean = total_neurons - astro_size;
+    int astro = 0, astrocyte = 0;
     vector<int> time_lines;
+    if (astro_size) {
+        astrocyte = astrocytes[0];
+    }
     
     ofstream spikes;
     spikes.open(("RESULTS/" + output + "_" + shifts + "-shifts_" + Dt + 
@@ -42,27 +48,39 @@ void print_all_spikes(const vector<int> spike_trains[],
     }
     spikes<<"\nThe data structure: "<<endl;
     for (int neur = 0; neur < total_neurons; neur++) {
-        int time_line_size;
-        time_line_size = spike_trains[neur].size();
-        spikes<<"No "<<neur + 1<<" neuron's spikes ("
-                                                <<time_line_size<<"):\n";
-        total_firings += time_line_size;
-        if (time_line_size > max) {
-            max = time_line_size;
+        int pos, time_line_size;
+        if (astro_size && neur == astrocyte) {
+            pos = neur_clean + astro;
+            time_line_size = spike_trains[pos].size();
+            spikes<<"No "<<neur + 1<<" astrocyte neuron's spikes ("
+                                                    <<time_line_size<<"):\n";
+            astrocyte = astrocytes[(++astro) % astro_size];
         }
-        else if (time_line_size < min) {
-            min = time_line_size;
+        else {
+            pos = neur - astro;
+            time_line_size = spike_trains[pos].size();
+            spikes<<"No "<<neur + 1<<" neuron's spikes ("
+                                                    <<time_line_size<<"):\n";
+            total_firings += time_line_size;
+            if (time_line_size > max) {
+                max = time_line_size;
+            }
+            else if (time_line_size < min) {
+                min = time_line_size;
+            }
+            time_lines.push_back(time_line_size);
         }
-        time_lines.push_back(time_line_size);
         for (int fire = 0; fire < time_line_size; fire++) {
-            spikes<<spike_trains[neur][fire] + 1<<' ';
+            spikes<<spike_trains[pos][fire] + 1<<' ';
         }
         spikes<<endl<<endl;
     }
     spikes.close();
         
-    info<<"\nNeurons' analytics without astrocytes:"<<endl;
-    info<<"Total number of spikes in dataset: "<<total_firings<<endl;
+    info<<"\nNeurons' analytics:"<<endl;
+    info<<"Total number of neurons: "<<total_neurons<<endl;
+    info<<"total number of astrocytes: "<<astro_size<<endl;
+    info<<"Total number of spikes in all neurons: "<<total_firings<<endl;
     info<<"Maximum number of spikes in a neuron: "<<max<<endl;
     info<<"Minimum number of spikes in a neuron: "<<min<<endl;
 }
