@@ -1,34 +1,41 @@
-## **INSTALLATION INSTRUCTIONS**
+## *INSTALLATION INSTRUCTIONS*
 
-### `Linux`
+### Linux
 
-Open terminal, cd to your preferred location. 
-Type:
+Open terminal, cd to your preferred location, and type:
 
-"git clone https://github.com/VagelisKalimeris/PARALLEL_STTC.git"
+    git clone https://github.com/VagelisKalimeris/PARALLEL_STTC.git
+    cd PARALLEL_STTC
+    make
 
-"cd PARALLEL_STTC"
+Make sure directories:
 
-"make"
+    DATASETS
+    ASTROCYTES
+    RESULTS
+have been created. If any of them is missing, create it yourself. For example:
 
-Make sure directories: DATASETS, ASTROCYTES, RESULTS have been created. If any of them is missing, create it yourself. For example "mkdir RESULTS".
+    mkdir RESULTS
 
 Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
 
-load 'name.mat'
-
-dlmwrite('name', matrix, 'newline', 'unix', 'delimiter', '')
-
-where name is the name of .mat file and matrix is the 2D table (frames * cells).
-The names of the final input files(dataset + astrocytes) MUST have the same name
+    load '<name>.mat'
+    dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
+where \<name\> is the name of .mat file and \<matrix\> is the 2D table (frames * cells).
 
 Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
+The names of the final input files (dataset + astrocytes) MUST have the same name and no extension.
 
-Run with: "./sttc size_of_control_group size_of_Dt name_of_dataset"
-For example if Dt = 3 and control group = 500 and input file "M696", run "./sttc 500 3 M696"
+Run with:
+
+    ./sttc <size_of_control_group> <size_of_Dt> <name_of_dataset>
+    
+For example, if Dt is 3, control group has size 500, and dataset is M696, then run:
+    
+    ./sttc 500 3 M696
 
 The resulting files will be accessible after program completion inside RESULTS directory. 
-For every psm_avalenche input file we analyze, our code produces 5 different output files(3 csv's and 2 txt's).
+For every psm_avalenche input file we analyze, our code produces 5 different output files (3 csv's and 2 txt's).
 The first part of every output file is the same as the name of the corresponding input file.
 The second part of every output file lists the analysis parameters(control group, Dt).
 The third part of every output file indicates it's type.
