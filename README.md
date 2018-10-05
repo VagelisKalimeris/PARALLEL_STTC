@@ -1,37 +1,69 @@
-# **STTC ANALYSES**
+## *INSTALLATION INSTRUCTIONS*
 
-### `GENERAL DESCRIPTION`
+### Linux
 
-#### 1. `Directional STTC`
+Open terminal, go  to your preferred location(cd WHERE/YOU/WANT/TO/INSTALL), and run:
 
-To incorporate the temporal order of the firing events of two neurons, we extended the STTC as follows: the fraction of the number of the firing events of A which fall within Δt before each firing event of B by the number of firing events of A is computed (𝑃𝐴𝐵−). The firing events that have this property increase the positive correlation (Fig. 1). Similarly, the fraction of the number of firing events of B that fall within Δt after each firing event of A by the number of firing events of B is estimated(𝑃𝐵𝐴+). In this way we estimate the correlation between spike trains for the spikes of B that follows spikes of A and the spikes of A that proceeds spikes of B.
+    git clone https://github.com/VagelisKalimeris/PARALLEL_STTC.git
+    cd PARALLEL_STTC
+    make
+
+Make sure the directories:
+
+    DATASETS
+    ASTROCYTES
+    RESULTS
+have been created. If any of them is missing, create it yourself. For example:
+
+    mkdir RESULTS
+
+Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
+
+    load '<name>.mat'
+    dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
+where \<name\> is the name of .mat file and \<matrix\> is the 2D table (frames * cells).
+
+Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
+The names of the final input files (dataset + astrocytes) MUST have the same name and no extension.
+
+Run with:
+
+    ./sttc <size_of_control_group> <size_of_Dt> <name_of_dataset>
+    
+For example, if Dt is 3, control group has size 500, and dataset is M696, then run:
+    
+    ./sttc 500 3 M696
+
+The resulting files will be accessible after program completion inside RESULTS directory. 
+For every psm_avalenche input file we analyze, our code produces 5 different output files (3 csv's and 2 txt's).
+The first part of every output file is the same as the name of the corresponding input file.
+The second part of every output file lists the analysis parameters(control group, Dt).
+The third part of every output file indicates it's type.
+There are five types as listed below:
+
+1. motifs.csv: Motif analysis
+
+2. neurons_info.txt: The total number of significant pairs and triplets as well as some general information that were collected during the analysis.
+
+3. neurons_spikes.txt: The spikes found in each neuron.
+
+4. pairs.csv(or tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
+
+5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group
 
 
-#### 2. `Conditional STTC of two neurons, given the firing of a third one`
+### `WINDOWS`
 
-To estimate the temporal correlation of two neurons, given that a third neuron is firing, we defined the
-conditional STTC as follows: we identify the firing events of A which follow within an interval of Δt of a
-firing event of C (Fig. 2). This new sequence of firing events of A forms the “reduced” spike train A. The
-number of firing events of B that falls within the tiles Δt after the firing events of the reduced spike train
-𝑪𝑨
-A (𝑵𝑨+𝑩) and the number of firing events of the reduced spike train A that falls within the tiles Δt after
-𝑪𝑨
-the firing events of spike train B is estimated (𝑵𝑩−𝑨). The spikes that have this property increase the
-positive correlation between A and B given the spike train C.
+The instructions are the same as long as you have installed a terminal application (we suggest "cygwin"), and added "git" and "make" support.
 
+## **Parameters that you might want to change:**
 
-#### 3. `Per pair threshold null distribution test for directional STTC`
+#### After any change to the source code, you must save the changed file and run the commands "make clean" and "make".
 
-For a given pair (A,B) we circular shift the spike train of the neuron A 50 times and estimate the directional STTC between the circular shifted spike trains A and the spike train B . Based on these 50 values we estimate the mean value (mean_sttc_direct) and the standard deviation (std_sttc_direct). The significant threshold corresponds to:
-Significant threshold = mean_sttc_direct + 3 std_sttc_direct
-If the directional STTC value of the given pair (A, B) is greater than the threshold, then we consider the edge between this pair as significant. In this approach we set one significant threshold value per pair, based on the 50 produced values and compare each pair (A,B) with the corresponding significant threshold value.
+Null distribution of the conditional STTC: If the conditional STTC of a given triplet ABC, is greater than the significant threshold and the number of firing events of ‘reduced A’ is greater than 5, then we consider this triplet as significant.
+You might want to change the second condition's value, by opening the file SRC/cond_null_dist.cpp with a text editor, and entering your preferred number at line 65.
+
+To change the significant threshold open the file SRC/common.cpp with a text editor and at line 75, change 3.0 to your preferred value(a real number, not integer is required).
 
 
-#### 4. `Null distribution for conditional STTC`
-
-For a given triplet A->B|C we circular shift the spike train of the neuron C 50 times and estimate the conditional STTC between A->B and the circular shifted spike trains C. Based on these 50 values we estimate the mean value (mean_sttc_cond) and the standard deviation (std_sttc_cond). The significant threshold corresponds to:
-Significant threshold = mean_sttc_cond + 3 std_sttc_cond
-A second limitation in order to consider a triplet as significant is that the number of firing events of A that follows ΔΤ after each spike of C (‘reduced A’).
-If the conditional STTC of the given triplet is greater than the significant threshold and the number of firing events of ‘reduced A’ is greater than 5, then we consider this triplet as significant.
-In this approach we set one significant threshold value per triplet, based on the 50 produced values and compare each triplet (A-> B)|C with the corresponding significant threshold value.
-
+### For further information read STTC_conditional.pdf
