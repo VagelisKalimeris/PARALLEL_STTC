@@ -25,7 +25,7 @@ The names of the final input files(dataset + astrocytes) MUST have the same name
 Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
 
 Run with: "./sttc size_of_control_group size_of_Dt name_of_dataset"
-For example if Dt = 3 and control group = 500 run "./sttc 500 3 M696"
+For example if Dt = 3 and control group = 500 and input file "M696", run "./sttc 500 3 M696"
 
 The resulting files will be accessible after program completion inside RESULTS directory. 
 For every psm_avalenche input file we analyze, our code produces 5 different output files(3 csv's and 2 txt's).
@@ -48,8 +48,6 @@ There are five types as listed below:
 ### `WINDOWS`
 
 The instructions are the same as long as you have installed a terminal application (we suggest "cygwin"), and added "git" and "make" support.
-
-
 
 ## **Parameters that you might want to change:**
 
