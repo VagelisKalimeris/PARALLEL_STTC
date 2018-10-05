@@ -2,19 +2,21 @@
 
 ### `Linux`
 
-Open terminal, cd to to your prefared location. 
+Open terminal, cd to your preferred location. 
 Type:
 
 "git clone https://github.com/VagelisKalimeris/PARALLEL_STTC.git"
 "cd PARALLEL_STTC"
 "make"
 
-Make shure directories: DATASETS, ASTROCYTES, RESULTS have been created. If any of them is missing, create it yourself. For example "mkdir RESULTS".
+Make sure directories: DATASETS, ASTROCYTES, RESULTS have been created. If any of them is missing, create it yourself. For example "mkdir RESULTS".
 
 Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
-	load '<\name>.mat'
+	```
+	load '<name>.mat'
 	dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
 where <name> is the name of .mat file and <matrix> is the 2D table (frames * cells).
+```
 
 Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
 
@@ -27,11 +29,11 @@ The first part of every output file is the same as the name of the corresponding
 The second part of every output file lists the analysis parameters(control group, Dt).
 The third part of every output file indicates it's type.
 There are five types as listed below:
-	a) _motifs.csv: Motif analysis
-	b) _neurons_info.txt: The total number of significant pairs and triplets as well as some general information that were collected during the analysis.
-	c) _neurons_spikes.txt: The spikes found in each neuron.
-	d) _pairs.csv(or _tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
-	e) _triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group._
+	⋅⋅* _motifs.csv: Motif analysis
+	⋅⋅* _neurons_info.txt: The total number of significant pairs and triplets as well as some general information that were collected during the analysis.
+	⋅⋅* _neurons_spikes.txt: The spikes found in each neuron.
+	⋅⋅* _pairs.csv(or _tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
+	⋅⋅* _triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group._
 
 ### `WINDOWS`
 
