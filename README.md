@@ -13,6 +13,7 @@ Make sure the directories:
     DATASETS
     ASTROCYTES
     RESULTS
+    OBJ
 have been created. If any of them is missing, create it yourself. For example:
 
     mkdir RESULTS
