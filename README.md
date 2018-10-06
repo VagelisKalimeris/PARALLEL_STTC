@@ -28,7 +28,7 @@ If psm_avalenche has 3 dimentions, it needs to be converted to 2D (in Matlab) be
 The names of the final input files (dataset + astrocytes) MUST have identical names, and no extensions.
 
 Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES directory.
-In case of datasets without an astrocytes file, the program runs successfully.
+In case of datasets without an astrocytes file, the program runs successfully after printing a wrning message.
 
 ### `WINDOWS`
 
@@ -36,9 +36,11 @@ The instructions are the same as long as you have installed a terminal applicati
 
 ## *EXECUTION INSTRUCTIONS*
 
+Run:
+
     ./sttc <size_of_control_group> <size_of_Dt> <name_of_dataset>
     
-For example, if Dt is 3, control group has size 500, and dataset is M696, then run:
+For example, if Dt is 3, control group has size 500, and the dataset name is M696, then run:
     
     ./sttc 500 3 M696
 
