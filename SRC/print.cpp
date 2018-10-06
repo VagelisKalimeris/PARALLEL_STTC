@@ -27,8 +27,8 @@
 ******************************************************************************/
 void print_all_spikes(const vector<int> spike_trains[], 
                         const int total_neurons, const vector<int> &astrocytes, 
-                        ofstream &info, const string output, 
-                        const string shifts, const string Dt)
+                      ofstream &info, const string output, const string shifts, 
+                                                               const string Dt)
 {
     int total_firings = 0, max = 0, min = 100000;
     const int astro_size = astrocytes.size();
