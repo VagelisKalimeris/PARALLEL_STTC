@@ -8,6 +8,7 @@
 !SRC/*
 !OBJ/README.txt
 !RESULTS/
+.DS_Store
 
 # Prerequisites
 *.d
