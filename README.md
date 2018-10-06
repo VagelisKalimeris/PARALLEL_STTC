@@ -18,7 +18,7 @@ have been created. If any of them is missing, create it yourself. For example:
 
     mkdir RESULTS
 
-Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in Matlab/Octave:
+Every psm_avalanche as well as astrocytes input file should be converted from .mat to text, with the following commands in Matlab/Octave:
 
     load '<name>.mat'
     dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
@@ -44,8 +44,8 @@ For example, if Dt is 3, control group has size 500, and the dataset name is M69
     
     ./sttc 500 3 M696
 
-The resulting files will be accessible after program completion inside RESULTS directory. 
-For every psm_avalenche input file we analyze, our code produces 5 different output files (3 csv's and 2 txt's).
+The resulting files will be accessible after a successfull execution, inside the RESULTS directory. 
+For every psm_avalanche input file we analyze, our code produces 5 different output files (3 csv's and 2 txt's).
 The first part of every output file is the same as the name of the corresponding input file.
 The second part of every output file lists the analysis parameters(control group, Dt).
 The third part of every output file indicates it's type.
@@ -61,6 +61,10 @@ There are five types as listed below:
 
 5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group
 
+To delete any previously produced output files run:
+
+    ./delete_results 
+    
 ## **Parameters that you might want to change:**
 
 #### After any change to the source code, you must save the changed file and run the commands "make clean" and "make".
