@@ -1,6 +1,6 @@
 ## *INSTALLATION INSTRUCTIONS*
 
-### Linux
+### `Linux`
 
 Open terminal, go  to your preferred location(cd WHERE/YOU/WANT/TO/INSTALL), and run:
 
@@ -18,16 +18,23 @@ have been created. If any of them is missing, create it yourself. For example:
 
     mkdir RESULTS
 
-Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in matlab/octave:
+Every psm_avalenche as well as astrocytes input file should be converted from .mat to text, with the following commands in Matlab/Octave:
 
     load '<name>.mat'
     dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
 where \<name\> is the name of .mat file and \<matrix\> is the 2D table (frames * cells).
+If psm_avalenche has 3 dimentions, it needs to be converted to 2D (in Matlab) before the analysis, by choosing a specific one from the 3rd dimention.
 
-Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES file.
-The names of the final input files (dataset + astrocytes) MUST have the same name and no extension.
+The names of the final input files (dataset + astrocytes) MUST have identical names, and no extensions.
 
-Run with:
+Every dataset should be placed inside DATASETS directory, and every Astrocytes file should be placed inside ASTROCYTES directory.
+In case of datasets without an astrocytes file, the program runs successfully.
+
+### `WINDOWS`
+
+The instructions are the same as long as you have installed a terminal application (we suggest "cygwin"), and added "git", "make" and gcc/g++ support.
+
+## *EXECUTION INSTRUCTIONS*
 
     ./sttc <size_of_control_group> <size_of_Dt> <name_of_dataset>
     
@@ -52,19 +59,13 @@ There are five types as listed below:
 
 5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group
 
-
-### `WINDOWS`
-
-The instructions are the same as long as you have installed a terminal application (we suggest "cygwin"), and added "git" and "make" support.
-
 ## **Parameters that you might want to change:**
 
 #### After any change to the source code, you must save the changed file and run the commands "make clean" and "make".
 
-Null distribution of the conditional STTC: If the conditional STTC of a given triplet ABC, is greater than the significant threshold and the number of firing events of ‘reduced A’ is greater than 5, then we consider this triplet as significant.
-You might want to change the second condition's value, by opening the file SRC/cond_null_dist.cpp with a text editor, and entering your preferred number at line 65.
-
-To change the significant threshold open the file SRC/common.cpp with a text editor and at line 75, change 3.0 to your preferred value(a real number, not integer is required).
+Null distribution of the conditional STTC: If the conditional STTC of a given triplet (A->B)|C is greater than the significant threshold and the number of firing events of ‘reduced A’ is greater than 5, then this triplet is considered as significant.  
+To change the significant threshold, open the file `SRC/common.cpp` with a text editor and at line 75, enter the preferred value as a real number, not integer.  
+To change the value of second condition, open the file SRC/cond_null_dist.cpp with a text editor and at line 65, enter the preferred value as an integer number, not real.
 
 
 ### For further information read STTC_conditional.pdf
