@@ -1,13 +1,10 @@
 *
 !*/
 !*.*
+!*/*
 !Makefile
-!ASTROCYTES/*
-!DATASETS/*
-!INCLUDE/*
-!SRC/*
-!OBJ/README.txt
-!RESULTS/
+OBJ/*
+RESULTS/*
 .DS_Store
 
 # Prerequisites
