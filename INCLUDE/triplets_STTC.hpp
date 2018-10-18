@@ -75,7 +75,7 @@ int N_AplusB_CA(const int time_line_A[], int time_line_A_size,
 * FUNCTION NAME: STTC_AB_C                                                    *
 *                                                                             *
 * ARGUMENTS: Two neuron's timelines(references to vectors), the total time    *
-*             samples recorded(int)and a time interval(int).                  *
+*             samples recorded(int) and a time interval(int).                 *
 *                                                                             *
 * PURPOSE: Estimates the temporal correlation of two neurons, given that a    *
 *           third neuron is firing.                                           *

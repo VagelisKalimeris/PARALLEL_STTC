@@ -15,8 +15,8 @@
 * FUNCTION NAME: print_all_spikes                                             *
 *                                                                             *
 * ARGUMENTS: A neuron's timeline(reference to a vector), the total number of  *
-*             neurons(int).                                                   *   
-*                                                                             *  
+*             neurons(int).                                                   *
+*                                                                             *
 * PURPOSE: Prints all the spikes of each neuron of the dataset, as well as    *
 *           the total number of spikes.                                       *
 *                                                                             *
@@ -27,10 +27,10 @@
 ******************************************************************************/
 void print_all_spikes(const vector<int> spike_trains[], 
                         const int total_neurons, const vector<int> &astrocytes, 
-                      ofstream &info, const string output, const string shifts, 
-                                                               const string Dt)
+                        ofstream &info, const string output, 
+                        const string shifts, const string Dt)
 {
-    int total_firings = 0, max = 0, min = 100000;
+    int ttl_firings = 0, max = 0, min = 100000;
     const int astro_size = astrocytes.size();
     const int neur_clean = total_neurons - astro_size;
     int astro = 0, astrocyte = 0;
@@ -61,7 +61,7 @@ void print_all_spikes(const vector<int> spike_trains[],
             time_line_size = spike_trains[pos].size();
             spikes<<"No "<<neur + 1<<" neuron's spikes ("
                                                     <<time_line_size<<"):\n";
-            total_firings += time_line_size;
+            ttl_firings += time_line_size;
             if (time_line_size > max) {
                 max = time_line_size;
             }
@@ -76,14 +76,25 @@ void print_all_spikes(const vector<int> spike_trains[],
         spikes<<endl<<endl;
     }
     spikes.close();
-        
+    
+    double median;
+    sort(time_lines.begin(), (time_lines.begin() + neur_clean));
+    if (neur_clean % 2) {
+        median = time_lines[neur_clean/2]/1.0;
+    }
+    else {
+        median = (time_lines[neur_clean/2 - 1] + time_lines[neur_clean/2])/2.0;
+    }
+    
     info<<"\nNeurons' analytics:"<<endl;
     info<<"Total number of neurons: "<<total_neurons<<endl;
     info<<"Total number of astrocytes: "<<astro_size<<endl;
     info<<"\nSpikes info excluding astrocytes:"<<endl;
-    info<<"Total number of spikes in all neurons: "<<total_firings<<endl;
+    info<<"Total number of spikes in all neurons: "<<ttl_firings<<endl;
     info<<"Maximum number of spikes in a neuron: "<<max<<endl;
     info<<"Minimum number of spikes in a neuron: "<<min<<endl;
+    info<<"Average number of spikes: "<<ttl_firings / double(neur_clean)<<endl;
+    info<<"Median number of spikes: "<<median<<endl;
 }
 
 

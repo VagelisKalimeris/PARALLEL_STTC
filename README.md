@@ -57,7 +57,7 @@ There are five types as listed below:
 
 3. neurons_spikes.txt: The spikes found in each neuron.
 
-4. pairs.csv(or tuplets.csv): All the significant pairs, along with their STTC value and their percentile(position among the control group)
+4. pairs.csv: All the significant pairs, along with their STTC value and their percentile(position among the control group)
 
 5. triplets.csv: All the significant triplets, along with their STTC value and their percentile(position among the control group
 

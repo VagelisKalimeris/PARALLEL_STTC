@@ -22,8 +22,8 @@ using namespace std;
 * FUNCTION NAME: print_all_spikes                                             *
 *                                                                             *
 * ARGUMENTS: A neuron's timeline(reference to a vector), the total number of  *
-*             neurons(int).                                                   *   
-*                                                                             *  
+*             neurons(int).                                                   *
+*                                                                             *
 * PURPOSE: Prints all the spikes of each neuron of the dataset, as well as    *
 *           the total number of spikes.                                       *
 *                                                                             *
@@ -34,8 +34,8 @@ using namespace std;
 ******************************************************************************/
 void print_all_spikes(const vector<int> spike_trains[], 
                         const int total_neurons, const vector<int> &astrocytes, 
-                      ofstream &info, const string output, const string shifts,
-                                                              const string Dt);
+                        ofstream &info, const string output, 
+                        const string shifts, const string Dt);
 
 
 /******************************************************************************

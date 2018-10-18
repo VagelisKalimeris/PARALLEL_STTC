@@ -21,7 +21,7 @@
 #include "../INCLUDE/common.hpp"
 #include "../INCLUDE/p_p_null_dist.hpp"
 #include "../INCLUDE/cond_null_dist.hpp"
-#include "../INCLUDE/tuplets_STTC.hpp"
+#include "../INCLUDE/pairs_STTC.hpp"
 #include "../INCLUDE/triplets_STTC.hpp"
 #include "../INCLUDE/print.hpp"
 
@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
     const int circ_shifts_num = atoi(argv[1]), Dt = atoi(argv[2]);
     
 // Caclulation variables
-    int ttl_sgnfcnt_tuplets = 0, ttl_sgnfcnt_triplets = 0;
+    int ttl_sgnfcnt_pairs = 0, ttl_sgnfcnt_triplets = 0;
     
 // Open File
     ifstream data, astros;
@@ -166,7 +166,7 @@ int main(int argc, char const *argv[])
         }
     }
     
-// All T for tuplets
+// All T for pairs
     double T_Aplus[neurons];
     double T_Bminus[neurons];
     #pragma omp parallel for
@@ -177,8 +177,8 @@ int main(int argc, char const *argv[])
         T_Bminus[neur] = T_B_minus(tl, tl_size, total_time_samples, Dt);
     }
     
-// Significant tuplets
-    bool sgnfcnt_tuplets[neurons][neurons];
+// Significant pairs
+    bool sgnfcnt_pairs[neurons][neurons];
     
 // Significant limit
     bool sgnfcnt_limit[neurons][neurons];
@@ -187,14 +187,14 @@ int main(int argc, char const *argv[])
     double T_Aplus_tripl[neurons][neurons];
     
 // Calculate per pair STTC
-    ofstream tuplets;
-    tuplets.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
-                                            Dt_s + "-dt_tuplets.csv").c_str());
-    if (!tuplets.is_open()) {
-        cout<<"Error opening results tuplets file!"<<endl;
+    ofstream pairs;
+    pairs.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
+                                            Dt_s + "-dt_pairs.csv").c_str());
+    if (!pairs.is_open()) {
+        cout<<"Error opening results pairs file!"<<endl;
         return 0;
     }
-    tuplets<<"NeuronA,NeuronB,STTC,Percentile\n";
+    pairs<<"NeuronA,NeuronB,STTC,Percentile\n";
     for (int a = 0; a < neurons; a++) { // Neuron A
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
@@ -210,7 +210,7 @@ int main(int argc, char const *argv[])
             #pragma omp for
             for (int b = 0; b < neurons; b++) { // Neuron B
             // It will be used to help in categorization of motifs
-                sgnfcnt_tuplets[a][b] = false;
+                sgnfcnt_pairs[a][b] = false;
                 if (a == b) {continue;} // Skip same neurons
                 int* tl_B = tl_array[b];
                 int tl_B_size = tl_sizes[b];
@@ -222,9 +222,9 @@ int main(int argc, char const *argv[])
                                     tl_B, tl_B_size, total_time_samples, Dt);
                 }
                 double tBm = T_Bminus[b];
-                double tupl_sttc = STTC_A_B(tl_A, tl_A_size, tl_B, tl_B_size, 
+                double pair_sttc = STTC_A_B(tl_A, tl_A_size, tl_B, tl_B_size, 
                                                                 Dt, tBm, tAp);
-                if (tupl_sttc == 2.0) {continue;}
+                if (pair_sttc == 2.0) {continue;}
                 int denominator = circ_shifts_num;
                 double mean = 0;
                 for (int shift = 0; shift < circ_shifts_num; shift++) {
@@ -246,29 +246,29 @@ int main(int argc, char const *argv[])
                 double st_dev = std_STTC_dir(shifted_res_arr, circ_shifts_num, 
                                                                         mean);
                 double threshold = sign_thresh(mean, st_dev);
-                if (tupl_sttc > threshold) {
+                if (pair_sttc > threshold) {
                     #pragma omp atomic
-                    ++ttl_sgnfcnt_tuplets;
-                    sgnfcnt_tuplets[a][b] = true;
+                    ++ttl_sgnfcnt_pairs;
+                    sgnfcnt_pairs[a][b] = true;
                     sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
                     int pos = 0; 
                     while (pos < denominator && 
-                                        shifted_res_arr[pos] <= tupl_sttc) {
+                                        shifted_res_arr[pos] <= pair_sttc) {
                         ++pos;
                     }
                     int b_real = map[b];
                     double percentile = pos / double(denominator);
                     #pragma omp critical
-                    tuplets << a_real << ',' << b_real << ',' << tupl_sttc
+                    pairs << a_real << ',' << b_real << ',' << pair_sttc
                                                  << ',' << percentile << '\n';
                 }
             }
             free(to_shift);
         }
     }
-    tuplets.close();
-    info<<"\nNumber of total significant tuplets: "<<ttl_sgnfcnt_tuplets<<" ( "
-                            <<(ttl_sgnfcnt_tuplets * 100 / double(ttl_neurons * 
+    pairs.close();
+    info<<"\nNumber of total significant pairs: "<<ttl_sgnfcnt_pairs<<" ( "
+                            <<(ttl_sgnfcnt_pairs * 100 / double(ttl_neurons * 
                             (ttl_neurons - 1)))<<"% )"<<endl;
     
     
@@ -307,8 +307,8 @@ int main(int argc, char const *argv[])
                 int c_real = map[c];
                 for (int b = 0; b < neurons; b++) { // Neuron B
                     if (b == a || b == c) {continue;} // Skip same neurons
-                    int pos = sgnfcnt_tuplets[c][a] * 4 + 
-                            sgnfcnt_tuplets[c][b] * 2 + sgnfcnt_tuplets[a][b];
+                    int pos = sgnfcnt_pairs[c][a] * 4 + 
+                            sgnfcnt_pairs[c][b] * 2 + sgnfcnt_pairs[a][b];
                     #pragma omp atomic
                     ++motifs_triplets[pos];
                     if (!sign_trplt_limit) {
@@ -387,7 +387,7 @@ int main(int argc, char const *argv[])
     
 // Close output files
     info.close();
-    cout<<"\nComputation has ended successfully. Output files are located"
+    cout<<"\nComputation has ended successfully. Output files are located "
         <<"inside RESULTS directory."<<endl;
     return 0;
 }

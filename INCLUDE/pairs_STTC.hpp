@@ -69,7 +69,7 @@ double N_B_A_plus(const int time_line_A[], int time_line_A_size,
 * FUNCTION NAME: STTC_A_B                                                     *
 *                                                                             *
 * ARGUMENTS: Two neuron's timelines(references to vectors), the total time    *
-*             samples recorded(int)and a time interval(int).                  *
+*             samples recorded(int) and a time interval(int).                 *
 *                                                                             *
 * PURPOSE: Calculates the the correlation between spike trains for the spikes *
 *           of B that follows spikes of A and the spikes of A that proceeds   *
