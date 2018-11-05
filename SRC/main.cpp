@@ -49,9 +49,6 @@ int main(int argc, char const *argv[])
 // Command Line Arguments. First give random sample size, then tile size. 
     const int circ_shifts_num = atoi(argv[1]), Dt = atoi(argv[2]);
     
-// Caclulation variables
-    int ttl_sgnfcnt_pairs = 0, ttl_sgnfcnt_triplets = 0;
-    
 // Open File
     ifstream data, astros;
     data.open((string("DATASETS/") + argv[3]).c_str(), ifstream::in);
@@ -177,9 +174,6 @@ int main(int argc, char const *argv[])
         T_Bminus[neur] = T_B_minus(tl, tl_size, total_time_samples, Dt);
     }
     
-// Significant pairs
-    bool sgnfcnt_pairs[neurons][neurons];
-    
 // Significant limit
     bool sgnfcnt_limit[neurons][neurons];
     
@@ -194,7 +188,7 @@ int main(int argc, char const *argv[])
         cout<<"Error opening results pairs file!"<<endl;
         return 0;
     }
-    pairs<<"NeuronA,NeuronB,STTC,Percentile\n";
+    pairs<<"NeuronA,NeuronB,STTC,CtrlGrpMean,CtrlGrpMedian,Percentile\n";
     for (int a = 0; a < neurons; a++) { // Neuron A
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
@@ -209,8 +203,6 @@ int main(int argc, char const *argv[])
             double shifted_res_arr[circ_shifts_num];
             #pragma omp for
             for (int b = 0; b < neurons; b++) { // Neuron B
-            // It will be used to help in categorization of motifs
-                sgnfcnt_pairs[a][b] = false;
                 if (a == b) {continue;} // Skip same neurons
                 int* tl_B = tl_array[b];
                 int tl_B_size = tl_sizes[b];
@@ -242,39 +234,34 @@ int main(int argc, char const *argv[])
                         mean += shifted_res_arr[shift];
                     }
                 }
+                if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
                 mean /= denominator;
-                double st_dev = std_STTC_dir(shifted_res_arr, circ_shifts_num, 
-                                                                        mean);
-                double threshold = sign_thresh(mean, st_dev);
-                if (pair_sttc > threshold) {
-                    #pragma omp atomic
-                    ++ttl_sgnfcnt_pairs;
-                    sgnfcnt_pairs[a][b] = true;
-                    sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
-                    int pos = 0; 
-                    while (pos < denominator && 
-                                        shifted_res_arr[pos] <= pair_sttc) {
-                        ++pos;
-                    }
-                    int b_real = map[b];
-                    double percentile = pos / double(denominator);
-                    #pragma omp critical
-                    pairs << a_real << ',' << b_real << ',' << pair_sttc
-                                                 << ',' << percentile << '\n';
+                sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
+                double median;
+                if (circ_shifts_num % 2) {
+                    median = double(shifted_res_arr[circ_shifts_num / 2]);
                 }
+                else {
+                    median = (shifted_res_arr[circ_shifts_num / 2 - 1] + 
+                                shifted_res_arr[circ_shifts_num / 2]) / 2.0;
+                }
+                int pos = 0; 
+                while (pos < denominator && 
+                                    shifted_res_arr[pos] <= pair_sttc) {
+                    ++pos;
+                }
+                int b_real = map[b];
+                double percentile = pos / double(denominator);
+                #pragma omp critical
+                pairs << a_real << ',' << b_real << ',' << pair_sttc 
+                                            << ',' << mean << ',' << median 
+                                            << ',' << percentile << '\n';
             }
             free(to_shift);
         }
     }
     pairs.close();
-    info<<"\nNumber of total significant pairs: "<<ttl_sgnfcnt_pairs<<" ( "
-                            <<(ttl_sgnfcnt_pairs * 100 / double(ttl_neurons * 
-                            (ttl_neurons - 1)))<<"% )"<<endl;
     
-    
-// Motif arrays
-    int motifs_triplets[8] = {0};
-    int motifs_sgnfcnts[8] = {0};
     
 // Calculate conditional STTC
     ofstream triplets;
@@ -284,7 +271,7 @@ int main(int argc, char const *argv[])
         cout<<"Error opening results triplets file!"<<endl;
         return 0;
     }
-    triplets<<"NeuronA,NeuronB,NeuronC,STTC,Percentile\n";
+    triplets<<"NeuronA,NeuronB,NeuronC,STTC,CtrlGrpMean,CtrlGrpMedian,Percentile\n";
     for (int a = 0; a < neurons; a++) { // Neuron A
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
@@ -307,10 +294,6 @@ int main(int argc, char const *argv[])
                 int c_real = map[c];
                 for (int b = 0; b < neurons; b++) { // Neuron B
                     if (b == a || b == c) {continue;} // Skip same neurons
-                    int pos = sgnfcnt_pairs[c][a] * 4 + 
-                            sgnfcnt_pairs[c][b] * 2 + sgnfcnt_pairs[a][b];
-                    #pragma omp atomic
-                    ++motifs_triplets[pos];
                     if (!sign_trplt_limit) {
                         continue; // Reduced A spike train has < 5 spikes
                     }
@@ -320,11 +303,7 @@ int main(int argc, char const *argv[])
                     double tBm = T_Bminus[b];
                     double trip_sttc = STTC_AB_C(tl_A, tl_A_size, tl_B, 
                                     tl_B_size, tl_C, tl_C_size, Dt, tBm, tApt);
-                    if (trip_sttc == 2.0) {
-                        #pragma omp atomic
-                        --motifs_triplets[pos];
-                        continue;
-                    }
+                    if (trip_sttc == 2.0) {continue;}
                     int denominator = circ_shifts_num;
                     double mean = 0;
                     for (int shift = 0; shift < circ_shifts_num; shift++) {
@@ -343,47 +322,40 @@ int main(int argc, char const *argv[])
                             mean += shifted_res_arr[shift];
                         }
                     }
+                    if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
                     mean /= denominator;
-                    double st_dev = std_STTC_dir(shifted_res_arr, 
-                                                        circ_shifts_num, mean);
-                    double threshold = sign_thresh(mean, st_dev);
-                    if ( trip_sttc > threshold) {
-                        #pragma omp atomic
-                        ++ttl_sgnfcnt_triplets;
-                        #pragma omp atomic
-                        ++motifs_sgnfcnts[pos];
-                        sort(shifted_res_arr, (shifted_res_arr + 
-                                                            circ_shifts_num));
-                        pos = 0; 
-                        while (pos < denominator && 
-                                        shifted_res_arr[pos] <= trip_sttc) {
-                            ++pos;
-                        }
-                        int b_real = map[b];
-                        double percentile = pos / double(denominator);
-                        #pragma omp critical
-                        triplets << a_real << ',' << b_real << ',' << c_real 
-                            << ',' << trip_sttc << ',' << percentile << '\n';
+                    sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
+                    double median;
+                    if (circ_shifts_num % 2) {
+                        median = double(shifted_res_arr[circ_shifts_num / 2]);
                     }
+                    else {
+                        median = (shifted_res_arr[circ_shifts_num / 2 - 1] + 
+                                    shifted_res_arr[circ_shifts_num / 2]) / 2.0;
+                    }
+                    int pos = 0; 
+                    while (pos < denominator && 
+                                    shifted_res_arr[pos] <= trip_sttc) {
+                        ++pos;
+                    }
+                    int b_real = map[b];
+                    double percentile = pos / double(denominator);
+                    #pragma omp critical
+                    triplets << a_real << ',' << b_real << ',' << c_real 
+                                << ',' << trip_sttc << ',' << mean 
+                                << ',' << median << ',' << percentile << '\n';
                 }
             }
             free(to_shift);
         }
     }
     triplets.close();
-    info<<"\nNumber of total significant triplets: "<<ttl_sgnfcnt_triplets
-                    <<" ( "<<(ttl_sgnfcnt_triplets * 100 / double(ttl_neurons * 
-                    (ttl_neurons - 1) * (ttl_neurons - 2)))<<"% )"<<endl;
     
     
 // Free memory
     for (int neur = 0; neur < neurons; ++neur) {
         free(tl_array[neur]);
     }
-    
-// Print Motifs
-    print_motifs(motifs_triplets, motifs_sgnfcnts, info, string(argv[3]), 
-                                                            shifts_s, Dt_s);
     
 // Close output files
     info.close();
