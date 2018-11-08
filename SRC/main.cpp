@@ -238,12 +238,12 @@ int main(int argc, char const *argv[])
                 mean /= denominator;
                 sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
                 double median;
-                if (circ_shifts_num % 2) {
-                    median = double(shifted_res_arr[circ_shifts_num / 2]);
+                if (denominator % 2) {
+                    median = shifted_res_arr[denominator / 2];
                 }
                 else {
-                    median = (shifted_res_arr[circ_shifts_num / 2 - 1] + 
-                                shifted_res_arr[circ_shifts_num / 2]) / 2.0;
+                    median = (shifted_res_arr[denominator / 2 - 1] + 
+                                shifted_res_arr[denominator / 2]) / 2.0;
                 }
                 int pos = 0; 
                 while (pos < denominator && 
@@ -326,12 +326,12 @@ int main(int argc, char const *argv[])
                     mean /= denominator;
                     sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
                     double median;
-                    if (circ_shifts_num % 2) {
-                        median = double(shifted_res_arr[circ_shifts_num / 2]);
+                    if (denominator % 2) {
+                        median = shifted_res_arr[denominator / 2];
                     }
                     else {
-                        median = (shifted_res_arr[circ_shifts_num / 2 - 1] + 
-                                    shifted_res_arr[circ_shifts_num / 2]) / 2.0;
+                        median = (shifted_res_arr[denominator / 2 - 1] + 
+                                    shifted_res_arr[denominator / 2]) / 2.0;
                     }
                     int pos = 0; 
                     while (pos < denominator && 
