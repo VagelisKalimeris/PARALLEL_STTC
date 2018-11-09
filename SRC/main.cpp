@@ -30,11 +30,11 @@ using namespace std;
 /******************************************************************************
 * FUNCTION NAME: main                                                         *
 *                                                                             *
-* ARGUMENTS: The total numbers Circular Shifts and the size of the tile Δt.   *
+* ARGUMENTS: The total numbers Circular Shifts and the size of the tile Dt.   *
 *                                                                             *
 * PURPOSE: This main function is for testing purposes only.                   *
 *                                                                             *
-* RETURNS: 0 on program comletion.                                            *
+* RETURNS: 0 on program completion.                                           *
 *                                                                             *
 * I/O: Opens/Reads a file containing the spike trains.                        *
 *                                                                             *
