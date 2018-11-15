@@ -88,4 +88,4 @@ int N_AplusB_CA(const int time_line_A[], int time_line_A_size,
 double STTC_AB_C(const int time_line_A[], int time_line_A_size, 
                 const int time_line_B[], int time_line_B_size, 
                 const int time_line_C[], int time_line_C_size, 
-                int Dt, double tBm, double tApt);
+                int Dt, double tBm, double tApt, int time_line_redA_size);

@@ -175,7 +175,7 @@ int main(int argc, char const *argv[])
     }
     
 // Significant limit
-    bool sgnfcnt_limit[neurons][neurons];
+    int sgnfcnt_limit[neurons][neurons];
     
 // Reduced spiketrain T for triplets
     double T_Aplus_tripl[neurons][neurons];
@@ -209,7 +209,7 @@ int main(int argc, char const *argv[])
                 if (tl_B_size == 0) {continue;}
                 sgnfcnt_limit[a][b] = sign_trpl_limit(tl_A, tl_A_size, tl_B, 
                                                                 tl_B_size, Dt);
-                if (sgnfcnt_limit[a][b]) {
+                if (sgnfcnt_limit[a][b] > 5) {
                     T_Aplus_tripl[a][b] = T_A_plus_tripl(tl_A, tl_A_size, 
                                     tl_B, tl_B_size, total_time_samples, Dt);
                 }
@@ -289,12 +289,12 @@ int main(int argc, char const *argv[])
                 int* tl_C = tl_array[c];
                 int tl_C_size = tl_sizes[c];
                 if (tl_C_size == 0) {continue;}
-                bool sign_trplt_limit = sgnfcnt_limit[a][c];
+                int sign_trplt_limit = sgnfcnt_limit[a][c];
                 double tApt = T_Aplus_tripl[a][c];
                 int c_real = map[c];
                 for (int b = 0; b < neurons; b++) { // Neuron B
                     if (b == a || b == c) {continue;} // Skip same neurons
-                    if (!sign_trplt_limit) {
+                    if (sign_trplt_limit <= 5) {
                         continue; // Reduced A spike train has < 5 spikes
                     }
                     int* tl_B = tl_array[b];
@@ -302,7 +302,8 @@ int main(int argc, char const *argv[])
                     if (tl_B_size == 0) {continue;}
                     double tBm = T_Bminus[b];
                     double trip_sttc = STTC_AB_C(tl_A, tl_A_size, tl_B, 
-                                    tl_B_size, tl_C, tl_C_size, Dt, tBm, tApt);
+                                            tl_B_size, tl_C, tl_C_size, 
+                                            Dt, tBm, tApt, sign_trplt_limit);
                     if (trip_sttc == 2.0) {continue;}
                     int denominator = circ_shifts_num;
                     double mean = 0;
@@ -310,16 +311,23 @@ int main(int argc, char const *argv[])
                         unsigned int random = random_gen(total_time_samples);
                         circular_shift(to_shift, tl_C, tl_C_size, random, 
                                                         total_time_samples);
-                        tApt = T_A_plus_tripl(tl_A, tl_A_size, to_shift, 
+                        sign_trplt_limit = sign_trpl_limit(tl_A, tl_A_size, 
+                                                    to_shift, tl_C_size, Dt);
+                        if (sign_trplt_limit > 5) {
+                            tApt = T_A_plus_tripl(tl_A, tl_A_size, to_shift, 
                                             tl_C_size, total_time_samples, Dt);
-                        shifted_res_arr[shift] = STTC_AB_C(tl_A, tl_A_size, 
-                                                    tl_B, tl_B_size, to_shift, 
-                                                    tl_C_size, Dt, tBm, tApt);
-                        if (shifted_res_arr[shift] == 2.0) {
-                            --denominator;
+                            shifted_res_arr[shift] = STTC_AB_C(tl_A, tl_A_size, 
+                                        tl_B, tl_B_size, to_shift, tl_C_size, 
+                                        Dt, tBm, tApt, sign_trplt_limit);
+                            if (shifted_res_arr[shift] == 2.0) {
+                                --denominator;
+                            }
+                            else {
+                                mean += shifted_res_arr[shift];
+                            }
                         }
                         else {
-                            mean += shifted_res_arr[shift];
+                            --denominator;
                         }
                     }
                     if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
