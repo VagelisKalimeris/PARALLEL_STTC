@@ -266,12 +266,12 @@ double STTC_AB_C(const int time_line_A[], int time_line_A_size,
                         time_line_B_size, time_line_C, time_line_C_size, Dt);
     int nApBCA = N_AplusB_CA(time_line_A, time_line_A_size, time_line_B, 
                         time_line_B_size, time_line_C, time_line_C_size, Dt);
-    double nA = double(time_line_redA_size), nB = double(time_line_B_size);
+    double nCA = double(time_line_redA_size), nB = double(time_line_B_size);
     
-    if ((nBmACA == nA && tBm == 1.0) || (nApBCA == nB && tApt == 1.0)) {
+    if ((nBmACA == nCA && tBm == 1.0) || (nApBCA == nB && tApt == 1.0)) {
         return 2.0;
     }
     
-    return 0.5 * ((((nBmACA / nA) - tBm) / (1.0 - ((nBmACA / nA) * tBm))) + 
+    return 0.5 * ((((nBmACA / nCA) - tBm) / (1.0 - ((nBmACA / nCA) * tBm))) + 
                     (((nApBCA / nB) - tApt) / (1.0 - ((nApBCA / nB) * tApt))));
 }

@@ -223,10 +223,10 @@ int main(int argc, char const *argv[])
                     unsigned int random = random_gen(total_time_samples);
                     circular_shift(to_shift, tl_A, tl_A_size, random, 
                                                         total_time_samples);
-                    tAp = T_A_plus(to_shift, tl_A_size, total_time_samples, 
+                    double tAp_s = T_A_plus(to_shift, tl_A_size, total_time_samples, 
                                                                         Dt);
                     shifted_res_arr[shift] = STTC_A_B(to_shift, tl_A_size, 
-                                                tl_B, tl_B_size, Dt, tBm, tAp);
+                                                tl_B, tl_B_size, Dt, tBm, tAp_s);
                     if (shifted_res_arr[shift] == 2.0) {
                         --denominator;
                     }
@@ -289,21 +289,21 @@ int main(int argc, char const *argv[])
                 int* tl_C = tl_array[c];
                 int tl_C_size = tl_sizes[c];
                 if (tl_C_size == 0) {continue;}
-                int sign_trplt_limit = sgnfcnt_limit[a][c];
+                int tl_redA_size = sgnfcnt_limit[a][c];
+                if (tl_redA_size <= 5) {
+                    continue; // Reduced A spike train has < 5 spikes
+                }
                 double tApt = T_Aplus_tripl[a][c];
                 int c_real = map[c];
                 for (int b = 0; b < neurons; b++) { // Neuron B
                     if (b == a || b == c) {continue;} // Skip same neurons
-                    if (sign_trplt_limit <= 5) {
-                        continue; // Reduced A spike train has < 5 spikes
-                    }
                     int* tl_B = tl_array[b];
                     int tl_B_size = tl_sizes[b];
                     if (tl_B_size == 0) {continue;}
                     double tBm = T_Bminus[b];
-                    double trip_sttc = STTC_AB_C(tl_A, tl_A_size, tl_B, 
-                                            tl_B_size, tl_C, tl_C_size, 
-                                            Dt, tBm, tApt, sign_trplt_limit);
+                    double trip_sttc = STTC_AB_C(tl_A, tl_A_size, 
+                                        tl_B, tl_B_size, tl_C, tl_C_size, 
+                                        Dt, tBm, tApt, tl_redA_size);
                     if (trip_sttc == 2.0) {continue;}
                     int denominator = circ_shifts_num;
                     double mean = 0;
@@ -311,14 +311,14 @@ int main(int argc, char const *argv[])
                         unsigned int random = random_gen(total_time_samples);
                         circular_shift(to_shift, tl_C, tl_C_size, random, 
                                                         total_time_samples);
-                        sign_trplt_limit = sign_trpl_limit(tl_A, tl_A_size, 
+                        int tl_redA_size_s = sign_trpl_limit(tl_A, tl_A_size, 
                                                     to_shift, tl_C_size, Dt);
-                        if (sign_trplt_limit > 5) {
-                            tApt = T_A_plus_tripl(tl_A, tl_A_size, to_shift, 
+                        if (tl_redA_size_s > 5) {
+                            double tApt_s = T_A_plus_tripl(tl_A, tl_A_size, to_shift, 
                                             tl_C_size, total_time_samples, Dt);
                             shifted_res_arr[shift] = STTC_AB_C(tl_A, tl_A_size, 
                                         tl_B, tl_B_size, to_shift, tl_C_size, 
-                                        Dt, tBm, tApt, sign_trplt_limit);
+                                        Dt, tBm, tApt_s, tl_redA_size_s);
                             if (shifted_res_arr[shift] == 2.0) {
                                 --denominator;
                             }
