@@ -249,25 +249,21 @@ int main(int argc, char const *argv[])
                 }
             // Pair is valid if control group has at least 80% valid STTC values
                 if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
-            // Mean is equal to sum of valid divided by size of valid null STTC values
                 mean /= denominator;
-            // Sorting of null STTC values
-                sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
-                int b_real = map[b];
                 
-                double st_dev = 0.0;
                 string null_STTC;
                 char buffer[32];
-                for (int i = 0; i < denominator; i++) {
-                    double value = shifted_res_arr[i];
-                    st_dev += pow(value - mean, 2.0);
-                    
-                    sprintf(buffer, "%f", value);
+                for (int i = 0; i < circ_shifts_num; i++) {
+                    sprintf(buffer, "%f", shifted_res_arr[i]);
                     null_STTC += ',' + string(buffer);
                 }
-                sprintf(buffer, "%f", 2.0);
-                for (int i = denominator; i < circ_shifts_num; i++) {
-                    null_STTC += ',' + string(buffer);
+                
+            // Sorting of null STTC values
+                sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
+                
+                double st_dev = 0.0;
+                for (int i = 0; i < denominator; i++) {
+                    st_dev += pow(shifted_res_arr[i] - mean, 2.0);
                 }
                 st_dev = sqrt(st_dev / denominator);
                 
@@ -287,6 +283,7 @@ int main(int argc, char const *argv[])
                 }
                 double percentile = pos / double(denominator);
                 
+                int b_real = map[b];
                 #pragma omp critical
                 pairs << a_real << ',' << b_real << ',' << pair_sttc 
                                 << ',' << mean << ',' << st_dev 
