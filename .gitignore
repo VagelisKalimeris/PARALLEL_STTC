@@ -4,8 +4,6 @@
 !*/*
 !Makefile
 OBJ/*
-ASTROCYTES/*
-DATASETS/*
 RESULTS/*
 .DS_Store
 
