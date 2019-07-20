@@ -22,7 +22,7 @@ Every psm_avalanche as well as astrocytes input file should be converted from .m
 
     load '<name>.mat'
     dlmwrite('<name>', <matrix>, 'newline', 'unix', 'delimiter', '')
-where \<name\> is the name of .mat file and \<matrix\> is the 2D table which should be in following format: frames * cells (rows * columns).
+where \<name\> is the name of .mat file and \<matrix\> is the 2D table which should have frames for rows and neurons for columns.
 If psm_avalenche has 3 dimensions, where 3rd is used for Deconvolution Cutoff, it needs to be converted to 2D (in Matlab) before the analysis, by choosing a specific Deconvolution Cutoff.
 
 The names of the final input files (dataset + astrocytes) MUST have identical names, and no extensions.
