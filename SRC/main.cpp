@@ -174,13 +174,7 @@ int main(int argc, char const *argv[])
         T_Aplus[neur] = T_A_plus(tl, tl_size, total_time_samples, Dt);
         T_Bminus[neur] = T_B_minus(tl, tl_size, total_time_samples, Dt);
     }
-    /*
-// Significant limit
-    int sgnfcnt_limit[neurons][neurons];
     
-// Reduced spiketrain T for triplets
-    double T_Aplus_tripl[neurons][neurons];
-    */
 // Calculate per pair STTC
     ofstream pairs;
     pairs.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
@@ -190,6 +184,7 @@ int main(int argc, char const *argv[])
         return 0;
     }
     pairs<<"NeuronA,NeuronB,STTC,CtrlGrpMean,CtrlGrpStDev,CtrlGrpMedian,Percentile\n";
+    
     ofstream pairs_cg;
     pairs_cg.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
                                             Dt_s + "-dt_pairs_cg.csv").c_str());
@@ -197,11 +192,12 @@ int main(int argc, char const *argv[])
         cout<<"Error opening results pairs_cg file!"<<endl;
         return 0;
     }
-    pairs_cg<<"NeuronA,NeuronB,STTC,CtrlGrpMean,CtrlGrpStDev,CtrlGrpMedian,Percentile";
+    pairs_cg<<"NeuronA,NeuronB,STTC";
     for (int i = 0; i < circ_shifts_num; ++i) {
         pairs_cg<<",STTC_"<<i+1;
     }
     pairs_cg<<"\n";
+    
     for (int a = 0; a < neurons; a++) { // Neuron A
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
@@ -220,12 +216,7 @@ int main(int argc, char const *argv[])
                 int* tl_B = tl_array[b];
                 int tl_B_size = tl_sizes[b];
                 if (tl_B_size == 0) {continue;}
-/*                sgnfcnt_limit[a][b] = sign_trpl_limit(tl_A, tl_A_size, tl_B, 
-                                                                tl_B_size, Dt);
-                if (sgnfcnt_limit[a][b] > 5) {
-                    T_Aplus_tripl[a][b] = T_A_plus_tripl(tl_A, tl_A_size, 
-                                    tl_B, tl_B_size, total_time_samples, Dt);
-                }*/
+                
                 double tBm = T_Bminus[b];
                 double pair_sttc = STTC_A_B(tl_A, tl_A_size, tl_B, tl_B_size, 
                                                                 Dt, tBm, tAp);
@@ -249,7 +240,8 @@ int main(int argc, char const *argv[])
                 }
             // Pair is valid if control group has at least 80% valid STTC values
                 if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
-                mean /= denominator;
+                
+                int b_real = map[b];
                 
                 string null_STTC;
                 char buffer[32];
@@ -257,6 +249,11 @@ int main(int argc, char const *argv[])
                     sprintf(buffer, "%f", shifted_res_arr[i]);
                     null_STTC += ',' + string(buffer);
                 }
+                #pragma omp critical
+                pairs_cg << a_real << ',' << b_real << ',' << pair_sttc 
+                                << null_STTC << '\n';
+                
+                mean /= denominator;
                 
             // Sorting of null STTC values
                 sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
@@ -283,158 +280,16 @@ int main(int argc, char const *argv[])
                 }
                 double percentile = pos / double(denominator);
                 
-                int b_real = map[b];
                 #pragma omp critical
                 pairs << a_real << ',' << b_real << ',' << pair_sttc 
                                 << ',' << mean << ',' << st_dev 
                                 << ',' << median << ',' << percentile << '\n';
-                #pragma omp critical
-                pairs_cg << a_real << ',' << b_real << ',' << pair_sttc 
-                                << ',' << mean << ',' << st_dev 
-                                << ',' << median << ',' << percentile 
-                                << null_STTC << '\n';
             }
             free(to_shift);
         }
     }
     pairs.close();
     pairs_cg.close();
-    
-    /*
-// Calculate conditional STTC
-    ofstream triplets;
-    triplets.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + 
-                            "-shifts_" + Dt_s + "-dt_triplets.csv").c_str());
-    if (!triplets.is_open()) {
-        cout<<"Error opening results triplets file!"<<endl;
-        return 0;
-    }
-    triplets<<"NeuronA,NeuronB,NeuronC,STTC,CtrlGrpMean,CtrlGrpStDev,CtrlGrpMedian,Percentile\n";
-    ofstream triplets_cg;
-    triplets_cg.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
-                                            Dt_s + "-dt_triplets_cg.csv").c_str());
-    if (!triplets_cg.is_open()) {
-        cout<<"Error opening results triplets_cg file!"<<endl;
-        return 0;
-    }
-    triplets_cg<<"NeuronA,NeuronB,NeuronC,STTC,CtrlGrpMean,CtrlGrpStDev,CtrlGrpMedian,Percentile";
-    for (int i = 0; i < circ_shifts_num; ++i) {
-        triplets_cg<<",STTC_"<<i+1;
-    }
-    triplets_cg<<"\n";
-    for (int a = 0; a < neurons; a++) { // Neuron A
-        int* tl_A = tl_array[a];
-        int tl_A_size = tl_sizes[a];
-        if (tl_A_size == 0) {continue;}
-        int a_real = map[a];
-        #pragma omp parallel
-        {
-        // Shifted spike trains will be copied here
-            int* to_shift = (int *)malloc(tl_size_max * sizeof(int));
-        // STTC values of shifted spike trains
-            double shifted_res_arr[circ_shifts_num];
-            #pragma omp for
-            for (int c = 0; c < neurons; c++) { // Neuron C
-                if (a == c) {continue;} // Skip same neurons
-                int* tl_C = tl_array[c];
-                int tl_C_size = tl_sizes[c];
-                if (tl_C_size == 0) {continue;}
-                int tl_redA_size = sgnfcnt_limit[a][c];
-                if (tl_redA_size <= 5) {
-                    continue; // Reduced A spike train has < 5 spikes
-                }
-                double tApt = T_Aplus_tripl[a][c];
-                int c_real = map[c];
-                for (int b = 0; b < neurons; b++) { // Neuron B
-                    if (b == a || b == c) {continue;} // Skip same neurons
-                    int* tl_B = tl_array[b];
-                    int tl_B_size = tl_sizes[b];
-                    if (tl_B_size == 0) {continue;}
-                    double tBm = T_Bminus[b];
-                    double trip_sttc = STTC_AB_C(tl_A, tl_A_size, 
-                                        tl_B, tl_B_size, tl_C, tl_C_size, 
-                                        Dt, tBm, tApt, tl_redA_size);
-                    if (trip_sttc == 2.0) {continue;}
-                    int denominator = circ_shifts_num;
-                    double mean = 0;
-                    for (int shift = 0; shift < circ_shifts_num; shift++) {
-                        unsigned int random = random_gen(total_time_samples);
-                        circular_shift(to_shift, tl_C, tl_C_size, random, 
-                                                        total_time_samples);
-                        int tl_redA_size_s = sign_trpl_limit(tl_A, tl_A_size, 
-                                                    to_shift, tl_C_size, Dt);
-                        if (tl_redA_size_s > 5) {
-                            double tApt_s = T_A_plus_tripl(tl_A, tl_A_size, to_shift, 
-                                            tl_C_size, total_time_samples, Dt);
-                            shifted_res_arr[shift] = STTC_AB_C(tl_A, tl_A_size, 
-                                        tl_B, tl_B_size, to_shift, tl_C_size, 
-                                        Dt, tBm, tApt_s, tl_redA_size_s);
-                            if (shifted_res_arr[shift] == 2.0) {
-                                --denominator;
-                            }
-                            else {
-                                mean += shifted_res_arr[shift];
-                            }
-                        }
-                        else {
-                            --denominator;
-                        }
-                    }
-                // Triplet is valid if control group has at least 80% valid STTC values
-                    if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
-                    mean /= denominator;
-                    
-                    string null_STTC;
-                    char buffer[32];
-                    for (int i = 0; i < circ_shifts_num; i++) {
-                        sprintf(buffer, "%f", shifted_res_arr[i]);
-                        null_STTC += ',' + string(buffer);
-                    }
-                    
-                // Sorting of null STTC values
-                    sort(shifted_res_arr, (shifted_res_arr + circ_shifts_num));
-                    
-                    double st_dev = 0.0;
-                    for (int i = 0; i < denominator; i++) {
-                        st_dev += pow(shifted_res_arr[i] - mean, 2.0);
-                    }
-                    st_dev = sqrt(st_dev / denominator);
-                    
-                    double median;
-                    if (denominator % 2) {
-                        median = shifted_res_arr[denominator / 2];
-                    }
-                    else {
-                        median = (shifted_res_arr[denominator / 2 - 1] + 
-                                    shifted_res_arr[denominator / 2]) / 2.0;
-                    }
-                    
-                    int pos = 0; 
-                    while (pos < denominator && 
-                                    shifted_res_arr[pos] <= trip_sttc) {
-                        ++pos;
-                    }
-                    double percentile = pos / double(denominator);
-                    
-                    int b_real = map[b];
-                    #pragma omp critical
-                    triplets << a_real << ',' << b_real << ',' << c_real 
-                                << ',' << trip_sttc << ',' << mean 
-                                << ',' << st_dev << ',' << median 
-                                << ',' << percentile << '\n';
-                    #pragma omp critical
-                    triplets_cg << a_real << ',' << b_real << ',' << c_real 
-                                << ',' << trip_sttc << ',' << mean 
-                                << ',' << st_dev << ',' << median 
-                                << ',' << percentile << ',' << null_STTC << '\n';
-                }
-            }
-            free(to_shift);
-        }
-    }
-    triplets.close();
-    triplets_cg.close();
-    */
     
 // Free memory
     for (int neur = 0; neur < neurons; ++neur) {
