@@ -142,6 +142,7 @@ int main(int argc, char const *argv[])
     }
     print_all_spikes(spike_trains, ttl_neurons, astrocytes, info, 
                                             string(argv[3]), shifts_s, Dt_s);
+    info.close();
     
 // Start random sequence
     srand(time(NULL));
@@ -243,15 +244,14 @@ int main(int argc, char const *argv[])
                 
                 int b_real = map[b];
                 
-                string null_STTC;
-                char buffer[32];
-                for (int i = 0; i < circ_shifts_num; i++) {
-                    sprintf(buffer, "%f", shifted_res_arr[i]);
-                    null_STTC += ',' + string(buffer);
-                }
                 #pragma omp critical
-                pairs_cg << a_real << ',' << b_real << ',' << pair_sttc 
-                                << null_STTC << '\n';
+                {
+                    pairs_cg << a_real << ',' << b_real << ',' << pair_sttc;
+                    for (int i = 0; i < circ_shifts_num; i++) {
+                        pairs_cg << ',' << shifted_res_arr[i];
+                    }
+                    pairs_cg << '\n';
+                }
                 
                 mean /= denominator;
                 
@@ -288,6 +288,7 @@ int main(int argc, char const *argv[])
             free(to_shift);
         }
     }
+    
     pairs.close();
     pairs_cg.close();
     
@@ -296,9 +297,8 @@ int main(int argc, char const *argv[])
         free(tl_array[neur]);
     }
     
-// Close output files
-    info.close();
     cout<<"\nComputation has ended successfully. Output files are located "
         <<"inside RESULTS directory."<<endl;
+        
     return 0;
 }
