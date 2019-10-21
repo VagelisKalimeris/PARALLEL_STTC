@@ -51,13 +51,13 @@ The second part of every output file lists the analysis parameters(control group
 The third part of every output file indicates it's type.
 There are four types as listed below:
 
-1. neurons_info.txt: The total number of significant pairs as well as some general information that was collected during the analysis.
+1. neurons_info.txt: The total number of significant triplets as well as some general information that was collected during the analysis.
 
 2. neurons_spikes.txt: The spikes found in each neuron.
 
-3. pairs.csv: All the significant pairs, along with their real STTC value and their {mean, StDev, Median} synthetic STTC values, and their percentile (position among the control group).
+3. triplets.csv: All the significant triplets, along with their real STTC value and their {mean, StDev, Median} synthetic STTC values, and their percentile (position among the control group).
 
-4. pairs_cg.csv: Same as pairs.csv including also all calculated synthetic STTC values for each pair.
+4. triplets_cg.csv: Same as triplets.csv including also all calculated synthetic STTC values for each triplet.
 
 To delete any previously produced output files run:
 
