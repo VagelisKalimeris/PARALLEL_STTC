@@ -185,7 +185,7 @@ int main(int argc, char const *argv[])
         return 0;
     }
     pairs<<"NeuronA,NeuronB,STTC,CtrlGrpMean,CtrlGrpStDev,CtrlGrpMedian,Percentile\n";
-    
+    /*
     ofstream pairs_cg;
     pairs_cg.open(("RESULTS/" + string(argv[3]) + "_" + shifts_s + "-shifts_" + 
                                             Dt_s + "-dt_pairs_cg.csv").c_str());
@@ -198,7 +198,7 @@ int main(int argc, char const *argv[])
         pairs_cg<<",STTC_"<<i+1;
     }
     pairs_cg<<"\n";
-    
+    */
     for (int a = 0; a < neurons; a++) { // Neuron A
         int* tl_A = tl_array[a];
         int tl_A_size = tl_sizes[a];
@@ -225,7 +225,7 @@ int main(int argc, char const *argv[])
                 int denominator = circ_shifts_num;
                 double mean = 0;
                 for (int shift = 0; shift < circ_shifts_num; shift++) {
-                    unsigned int random = random_gen(total_time_samples);
+                    unsigned int random = shift; //random_gen(total_time_samples);
                     circular_shift(to_shift, tl_A, tl_A_size, random, 
                                                         total_time_samples);
                     double tAp_s = T_A_plus(to_shift, tl_A_size, total_time_samples, 
@@ -243,7 +243,7 @@ int main(int argc, char const *argv[])
                 if (double(denominator) < (0.8 * circ_shifts_num)) {continue;}
                 
                 int b_real = map[b];
-                
+                /*
                 #pragma omp critical
                 {
                     pairs_cg << a_real << ',' << b_real << ',' << pair_sttc;
@@ -252,7 +252,7 @@ int main(int argc, char const *argv[])
                     }
                     pairs_cg << '\n';
                 }
-                
+                */
                 mean /= denominator;
                 
             // Sorting of null STTC values
@@ -290,7 +290,7 @@ int main(int argc, char const *argv[])
     }
     
     pairs.close();
-    pairs_cg.close();
+    //pairs_cg.close();
     
 // Free memory
     for (int neur = 0; neur < neurons; ++neur) {
